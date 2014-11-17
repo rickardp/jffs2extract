@@ -7,6 +7,11 @@ The reason I put this together is to simplify batch extracting JFF2 images witho
 
 Use it like the standard `tar` command.
 
+### How to build ###
+
+* Clone this repo
+* `make`
+
 ### Known issues ###
 * This project is very immature, so bugs can be expected. Use it at your own risk.
 * Does not extract special files.
