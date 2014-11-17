@@ -21,6 +21,7 @@
 *.dylib
 
 # Executables
+jffs2extract
 *.exe
 *.out
 *.app
