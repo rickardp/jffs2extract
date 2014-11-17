@@ -1,4 +1,4 @@
-LDFLAGS=-lz
+LDLIBS=-lz
 CFLAGS=-Iinclude
 
 all: jffs2extract
