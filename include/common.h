@@ -28,6 +28,9 @@
 #ifndef __APPLE__
 #include <features.h>
 #endif
+#ifdef __linux__
+#include <sys/sysmacros.h>
+#endif
 #include <inttypes.h>
 
 #ifndef PROGRAM_NAME
