@@ -92,6 +92,38 @@ void visit(char *o, size_t size, const char *path, int verbose, visitor visitor)
 /* writes file node into buffer, to the proper position. */
 /* reading all valid nodes in version order reconstructs the file. */
 
+static int jffs2_rtime_decompress(unsigned char *data_in,
+				  unsigned char *cpage_out,
+				  uint32_t srclen, uint32_t destlen)
+{
+	short positions[256];
+	int outpos = 0;
+	int pos=0;
+	memset(positions,0,sizeof(positions));
+	while (outpos<destlen) {
+		unsigned char value;
+		int backoffs;
+		int repeat;
+		value = data_in[pos++];
+		cpage_out[outpos++] = value; /* first the verbatim copied byte */
+		repeat = data_in[pos++];
+		backoffs = positions[value];
+		positions[value]=outpos;
+		if (repeat) {
+			if (backoffs + repeat >= outpos) {
+				while(repeat) {
+					cpage_out[outpos++] = cpage_out[backoffs++];
+					repeat--;
+				}
+			} else {
+				memcpy(&cpage_out[outpos],&cpage_out[backoffs],repeat);
+				outpos+=repeat;
+			}
+		}
+	}
+	return 0;
+}
+
 /*
    b       - buffer
    bsize   - buffer size
@@ -124,6 +156,12 @@ void putblock(char *b, size_t bsize, size_t * rsize,
 
 		case JFFS2_COMPR_ZERO:
 			bzero(b + je32_to_cpu(n->offset), dlen);
+			break;
+
+		case JFFS2_COMPR_RTIME:
+			jffs2_rtime_decompress((unsigned char *) ((char *) n) + sizeof(struct jffs2_raw_inode),
+					(unsigned char *) (b + je32_to_cpu(n->offset)),
+                    je32_to_cpu(n->csize), je32_to_cpu(n->dsize));
 			break;
 
 			/* [DYN]RUBIN support required! */
